@@ -1,0 +1,149 @@
+{
+  "mandatory": [
+    {
+      "name": "GSD v2",
+      "url": "github.com/gsd-build/gsd-2",
+      "extractPatterns": [
+        "context engineering",
+        "sub-agent orchestration",
+        "wave-based parallelism",
+        "fresh-context execution",
+        "Nyquist validation"
+      ]
+    },
+    {
+      "name": "GSD v1",
+      "url": "github.com/gsd-build/get-shit-done",
+      "extractPatterns": [
+        "slash command patterns",
+        "planning workflow"
+      ]
+    },
+    {
+      "name": "BMAD Method",
+      "url": "github.com/bmad-code-org/BMAD-METHOD",
+      "extractPatterns": [
+        "agile AI workflow",
+        "expansion packs",
+        "scale-adaptive intelligence"
+      ]
+    },
+    {
+      "name": "BMAD for Claude Code",
+      "url": "github.com/aj-geddes/claude-code-bmad-skills",
+      "extractPatterns": [
+        "skill implementations",
+        "parallel subagent patterns"
+      ]
+    },
+    {
+      "name": "BMAD Plugin",
+      "url": "github.com/PabloLION/bmad-plugin",
+      "extractPatterns": [
+        "plugin packaging",
+        "marketplace distribution",
+        "upstream sync"
+      ]
+    },
+    {
+      "name": "BMAD at Claude",
+      "url": "github.com/24601/BMAD-AT-CLAUDE",
+      "extractPatterns": [
+        "web builder patterns",
+        "bundle strategy"
+      ]
+    },
+    {
+      "name": "Awesome Claude Code",
+      "url": "github.com/hesreallyhim/awesome-claude-code",
+      "extractPatterns": [
+        "new curated tools",
+        "skills",
+        "workflows"
+      ]
+    },
+    {
+      "name": "Claude Code Everything",
+      "url": "github.com/wesammustafa/Claude-Code-Everything-You-Need-to-Know",
+      "extractPatterns": [
+        "feature reference",
+        "hooks",
+        "agent teams",
+        "MCP"
+      ]
+    },
+    {
+      "name": "Anthropic Claude Skills",
+      "url": "github.com/anthropics/claude-skills",
+      "extractPatterns": [
+        "official skill patterns"
+      ]
+    },
+    {
+      "name": "Continuous Claude v2",
+      "url": "github.com/disler/continuous-claude-code-2",
+      "extractPatterns": [
+        "context management",
+        "ledger patterns"
+      ]
+    },
+    {
+      "name": "Claude Code PM",
+      "url": "github.com/grahamwaters/claude-code-project-manager",
+      "extractPatterns": [
+        "project management workflow patterns"
+      ]
+    },
+    {
+      "name": "Shipyard Plugin",
+      "url": "github.com/shipyard-run/shipyard",
+      "extractPatterns": [
+        "IaC validation",
+        "security auditing"
+      ]
+    },
+    {
+      "name": "Claude-Mem",
+      "url": "github.com/nickovs/claude-mem",
+      "extractPatterns": [
+        "cross-session memory approaches"
+      ]
+    },
+    {
+      "name": "Local-Review",
+      "url": "github.com/cloudcode-community/local-review",
+      "extractPatterns": [
+        "parallel code review patterns"
+      ]
+    },
+    {
+      "name": "TDD Guard",
+      "url": "github.com/cloudcode-community/tdd-guard",
+      "extractPatterns": [
+        "automated TDD enforcement"
+      ]
+    },
+    {
+      "name": "CCPlugins",
+      "url": "github.com/cloudcode-community/ccplugins",
+      "extractPatterns": [
+        "high-value community plugins"
+      ]
+    },
+    {
+      "name": "ccguard",
+      "url": "github.com/cloudcode-community/ccguard",
+      "extractPatterns": [
+        "LOC constraint enforcement",
+        "complexity constraint enforcement"
+      ]
+    },
+    {
+      "name": "claude-code-auto-memory",
+      "url": "github.com/cloudcode-community/claude-code-auto-memory",
+      "extractPatterns": [
+        "auto-memory plugin patterns"
+      ]
+    }
+  ]
+}

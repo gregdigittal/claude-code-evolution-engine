@@ -1,0 +1,16 @@
+[Unit]
+Description=CCEE Review UI Express Server
+After=network.target
+
+[Service]
+Type=simple
+User=gregmorris
+WorkingDirectory=/home/gregmorris/claude-code-evolution-engine
+ExecStart=/usr/bin/node dist/server/app.js
+Restart=on-failure
+RestartSec=10
+Environment=NODE_ENV=production
+EnvironmentFile=/home/gregmorris/claude-code-evolution-engine/.env
+
+[Install]
+WantedBy=multi-user.target

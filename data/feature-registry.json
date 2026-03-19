@@ -1,0 +1,109 @@
+{
+  "features": [
+    {
+      "name": "Agent Teams",
+      "availableSince": "v2.1.50",
+      "releaseDate": "2026-02",
+      "status": "available",
+      "description": "Coordinate multiple AI agents working in parallel with shared context"
+    },
+    {
+      "name": "Plugin Marketplace",
+      "availableSince": "v2.1.45",
+      "releaseDate": "2025-10",
+      "status": "available",
+      "description": "Install community and official plugins via claude plugin install"
+    },
+    {
+      "name": "Voice Mode",
+      "availableSince": "v2.1.70",
+      "releaseDate": "2026-03",
+      "status": "available",
+      "description": "Voice interaction with Claude Code"
+    },
+    {
+      "name": "/loop command",
+      "availableSince": "v2.1.72",
+      "releaseDate": "2026-03",
+      "status": "available",
+      "description": "Built-in loop command for iterative task execution"
+    },
+    {
+      "name": "Native auto memory",
+      "availableSince": "v2.1.60",
+      "releaseDate": "2026-02",
+      "status": "available",
+      "description": "Cross-session memory persistence via autoMemoryDirectory setting"
+    },
+    {
+      "name": "HTTP hooks",
+      "availableSince": "v2.1.70",
+      "releaseDate": "2026-03",
+      "status": "available",
+      "description": "Trigger HTTP endpoints from lifecycle hooks"
+    },
+    {
+      "name": "StopFailure hook",
+      "availableSince": "v2.1.68",
+      "releaseDate": "2026-03",
+      "status": "available",
+      "description": "Hook that fires when a task stops due to failure"
+    },
+    {
+      "name": "1M context window",
+      "availableSince": "v2.1.75",
+      "releaseDate": "2026-03",
+      "status": "available",
+      "description": "Extended 1 million token context window support"
+    },
+    {
+      "name": "Scheduled tasks",
+      "availableSince": "v2.1.60",
+      "releaseDate": "2026-02",
+      "status": "available",
+      "description": "Native scheduled task execution without external cron"
+    },
+    {
+      "name": "Frontmatter-based agents",
+      "availableSince": "v2.1.55",
+      "releaseDate": "2026-02",
+      "status": "available",
+      "description": "Agent definitions with model, tools, memory scope in YAML frontmatter"
+    },
+    {
+      "name": "SendMessage API",
+      "availableSince": "v2.1.50",
+      "releaseDate": "2026-02",
+      "status": "available",
+      "description": "Inter-agent messaging for Agent Teams"
+    },
+    {
+      "name": "Local-Review plugin",
+      "availableSince": "marketplace",
+      "releaseDate": "2025-11",
+      "status": "available",
+      "description": "Parallel code review pattern via Plugin Marketplace"
+    },
+    {
+      "name": "TDD Guard plugin",
+      "availableSince": "marketplace",
+      "releaseDate": "2025-12",
+      "status": "available",
+      "description": "Automated TDD enforcement plugin"
+    },
+    {
+      "name": "Conditional tool permissions",
+      "availableSince": "v2.1.65",
+      "releaseDate": "2026-03",
+      "status": "available",
+      "description": "Fine-grained tool permission control per session"
+    },
+    {
+      "name": "Session resume",
+      "availableSince": "v2.1.40",
+      "releaseDate": "2025-09",
+      "status": "available",
+      "description": "Resume interrupted sessions with full context"
+    }
+  ]
+}

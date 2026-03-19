@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CCEE Mission Control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__logo">⬡</span>
+      <span class="topbar__title">CCEE Mission Control</span>
+    </div>
+    <div class="topbar__meta" id="run-meta">
+      <span class="badge badge--neutral">No run loaded</span>
+    </div>
+    <div class="topbar__actions">
+      <button class="btn btn--ghost" id="btn-trigger">Trigger Run</button>
+      <button class="btn btn--ghost" id="btn-export">Export Report</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Left Sidebar: Intelligence Summary -->
+    <aside class="sidebar">
+      <div class="sidebar__section">
+        <h3 class="sidebar__heading">Intelligence</h3>
+        <div class="stat-card" id="stat-sources">
+          <span class="stat-card__label">Sources Scanned</span>
+          <span class="stat-card__value" id="val-sources">—</span>
+        </div>
+        <div class="stat-card" id="stat-repos">
+          <span class="stat-card__label">Repos Tracked</span>
+          <span class="stat-card__value" id="val-repos">—</span>
+        </div>
+        <div class="stat-card" id="stat-videos">
+          <span class="stat-card__label">Videos Analysed</span>
+          <span class="stat-card__value" id="val-videos">—</span>
+        </div>
+      </div>
+
+      <div class="sidebar__section">
+        <h3 class="sidebar__heading">Proposals</h3>
+        <div class="stat-card stat-card--cyan" id="stat-proposals">
+          <span class="stat-card__label">Total</span>
+          <span class="stat-card__value" id="val-proposals">—</span>
+        </div>
+        <div class="stat-card stat-card--green" id="stat-passed">
+          <span class="stat-card__label">Tests Passed</span>
+          <span class="stat-card__value" id="val-passed">—</span>
+        </div>
+        <div class="stat-card stat-card--amber" id="stat-high-risk">
+          <span class="stat-card__label">High Risk</span>
+          <span class="stat-card__value" id="val-high-risk">—</span>
+        </div>
+      </div>
+
+      <div class="sidebar__section">
+        <h3 class="sidebar__heading">Bulk Actions</h3>
+        <button class="btn btn--primary btn--full" id="btn-accept-p0p1">Accept All P0+P1</button>
+        <button class="btn btn--secondary btn--full" id="btn-accept-tested">Accept All Tested</button>
+        <button class="btn btn--danger btn--full" id="btn-reject-removals">Reject All Removals</button>
+        <button class="btn btn--ghost btn--full" id="btn-reject-high-risk">Reject All High Risk</button>
+      </div>
+
+      <div class="sidebar__section">
+        <h3 class="sidebar__heading">Run History</h3>
+        <div id="run-list" class="run-list">
+          <span class="text-muted">Loading...</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Panel: Proposals -->
+    <main class="main-panel" id="main-panel">
+      <div class="main-panel__empty" id="empty-state">
+        <div class="empty-state">
+          <div class="empty-state__icon">⬡</div>
+          <h2>No Proposals</h2>
+          <p>Run CCEE to generate change proposals, or select a past run from the sidebar.</p>
+          <button class="btn btn--primary" id="btn-trigger-empty">Trigger First Run</button>
+        </div>
+      </div>
+
+      <div id="proposals-container" class="proposals hidden">
+        <!-- Priority groups rendered by app.js -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Bottom Bar -->
+  <footer class="bottombar">
+    <div class="bottombar__left" id="selection-info">
+      <span id="selected-count">0 proposals selected</span>
+    </div>
+    <div class="bottombar__actions">
+      <button class="btn btn--ghost" id="btn-defer">Defer to Next Week</button>
+      <button class="btn btn--primary" id="btn-apply-selected" disabled>Apply Selected</button>
+    </div>
+  </footer>
+
+  <!-- Proposal Card Template (hidden, cloned by JS) -->
+  <template id="proposal-card-template">
+    <article class="proposal-card" data-proposal-id="">
+      <div class="proposal-card__header">
+        <div class="proposal-card__badges">
+          <span class="badge badge--priority"></span>
+          <span class="badge badge--risk"></span>
+          <span class="badge badge--category"></span>
+          <span class="badge badge--scope"></span>
+        </div>
+        <div class="proposal-card__controls">
+          <button class="btn-icon btn-icon--accept" title="Accept">✓</button>
+          <button class="btn-icon btn-icon--reject" title="Reject">✕</button>
+        </div>
+      </div>
+      <h3 class="proposal-card__title"></h3>
+      <p class="proposal-card__impact"></p>
+      <details class="proposal-card__details">
+        <summary>View details</summary>
+        <div class="proposal-card__diff"></div>
+        <div class="proposal-card__testing"></div>
+        <div class="proposal-card__rollback"></div>
+      </details>
+    </article>
+  </template>
+
+  <script src="/app.js"></script>
+</body>
+</html>

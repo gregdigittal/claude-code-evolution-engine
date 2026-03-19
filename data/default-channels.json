@@ -1,0 +1,39 @@
+{
+  "mandatory": [
+    {
+      "handle": "@anthropic",
+      "url": "https://www.youtube.com/@anthropic"
+    },
+    {
+      "handle": "@aicodingclub",
+      "url": "https://www.youtube.com/@aicodingclub"
+    },
+    {
+      "handle": "@indydevdan",
+      "url": "https://www.youtube.com/@indydevdan"
+    },
+    {
+      "handle": "@allaboutai",
+      "url": "https://www.youtube.com/@allaboutai"
+    },
+    {
+      "handle": "@AIJasonZ",
+      "url": "https://www.youtube.com/@AIJasonZ"
+    },
+    {
+      "handle": "@TechWithTim",
+      "url": "https://www.youtube.com/@TechWithTim"
+    }
+  ],
+  "searchQueries": [
+    "\"claude code\" tutorial",
+    "\"claude code\" tips",
+    "\"claude code\" workflow",
+    "\"claude code\" agent",
+    "\"claude code\" plugin"
+  ],
+  "searchFilters": {
+    "maxAgeDays": 7,
+    "minViews": 1000
+  }
+}
