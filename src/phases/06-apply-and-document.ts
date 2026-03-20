@@ -6,6 +6,7 @@
  */
 
 import { existsSync, readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { createTaggedLogger } from '../utils/logger.js';
 import { createBackup } from '../apply/backup.js';
@@ -111,6 +112,18 @@ export async function runApplyPhase(
       `ccee: weekly run ${weekLabel} — ${succeeded} changes applied`
     );
     pushToRemote(config.obsidianStagingPath);
+  }
+
+  // Push applied config changes to claude-config git repo
+  const claudeConfigDir = join(homedir(), '.claude');
+  if (existsSync(join(claudeConfigDir, '.git'))) {
+    log.info('pushing applied config changes to claude-config repo');
+    try {
+      commitAll(claudeConfigDir, `ccee: apply ${weekLabel} — ${succeeded} proposals`);
+      pushToRemote(claudeConfigDir);
+    } catch (err: unknown) {
+      log.warn(`claude-config push failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 
   // Notify completion
