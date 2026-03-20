@@ -1373,11 +1373,111 @@ btnDefer.addEventListener('click', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Repo tracking
+// ---------------------------------------------------------------------------
+async function loadRepos() {
+  try {
+    const data = await fetchJson('/api/ccee/repos');
+    renderUserRepos(data.user || []);
+    renderDefaultRepos(data.defaults || []);
+  } catch (err) {
+    console.error('Failed to load repos:', err.message);
+  }
+}
+
+function renderUserRepos(repos) {
+  const list = $('user-repos-list');
+  list.textContent = '';
+  if (repos.length === 0) {
+    list.appendChild(el('span', 'text-muted', 'None added yet'));
+    return;
+  }
+  for (const repo of repos) {
+    const item = el('div', 'repo-item');
+    const label = el('span', 'repo-item__url', repo.url);
+    const removeBtn = el('button', 'repo-item__remove', '✕');
+    removeBtn.title = 'Remove';
+    removeBtn.setAttribute('aria-label', 'Remove ' + repo.url);
+    removeBtn.addEventListener('click', async () => {
+      removeBtn.disabled = true;
+      try {
+        await fetch('/api/ccee/repos/' + encodeURIComponent(repo.url), { method: 'DELETE' });
+        await loadRepos();
+      } catch (err) {
+        console.error('Remove repo failed:', err.message);
+        removeBtn.disabled = false;
+      }
+    });
+    item.appendChild(label);
+    item.appendChild(removeBtn);
+    list.appendChild(item);
+  }
+}
+
+function renderDefaultRepos(repos) {
+  const list = $('default-repos-list');
+  list.textContent = '';
+  for (const repo of repos) {
+    const item = el('div', 'repo-item repo-item--default');
+    item.appendChild(el('span', 'repo-item__url', repo.url));
+    list.appendChild(item);
+  }
+}
+
+(function initRepoTracking() {
+  const input = $('repo-url-input');
+  const btn = $('btn-add-repo');
+  const errorEl = $('repo-add-error');
+
+  function showError(msg) {
+    errorEl.textContent = msg;
+    errorEl.classList.remove('hidden');
+  }
+  function clearError() {
+    errorEl.textContent = '';
+    errorEl.classList.add('hidden');
+  }
+
+  async function addRepo() {
+    const raw = input.value.trim();
+    if (!raw) return;
+    clearError();
+    btn.disabled = true;
+    btn.textContent = '…';
+    try {
+      const res = await fetch('/api/ccee/repos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: raw }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showError(data.error || 'Failed to add repo');
+      } else {
+        input.value = '';
+        await loadRepos();
+      }
+    } catch (err) {
+      showError(err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Track';
+    }
+  }
+
+  btn.addEventListener('click', addRepo);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') addRepo();
+  });
+})();
+
+// ---------------------------------------------------------------------------
 // Init
 // ---------------------------------------------------------------------------
 (async function init() {
   await loadRunsList();
   updateDeferredSidebar();
+  await loadRepos();
 
   // Route: /ccee/review/:date
   const match = window.location.pathname.match(/\/ccee\/review\/(.+)/);

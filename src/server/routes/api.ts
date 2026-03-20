@@ -1,20 +1,24 @@
 /**
  * api.ts — CCEE REST API routes.
  *
- * GET  /api/ccee/latest                → Latest run summary
- * GET  /api/ccee/runs                  → All runs
- * GET  /api/ccee/runs/:date            → Full run details
- * GET  /api/ccee/runs/:date/proposals  → All proposals for a run
- * POST /api/ccee/runs/:date/apply      → Apply selected proposals
- * POST /api/ccee/runs/:date/reject     → Reject proposals
- * GET  /api/ccee/health                → Health check
- * GET  /api/ccee/config                → Current tracked config summary
- * POST /api/ccee/trigger               → Trigger an on-demand run
+ * GET    /api/ccee/latest                → Latest run summary
+ * GET    /api/ccee/runs                  → All runs
+ * GET    /api/ccee/runs/:date            → Full run details
+ * GET    /api/ccee/runs/:date/proposals  → All proposals for a run
+ * POST   /api/ccee/runs/:date/apply      → Apply selected proposals
+ * POST   /api/ccee/runs/:date/reject     → Reject proposals
+ * GET    /api/ccee/health                → Health check
+ * GET    /api/ccee/config                → Current tracked config summary
+ * POST   /api/ccee/trigger               → Trigger an on-demand run
+ * GET    /api/ccee/repos                 → List all tracked repos (all sources)
+ * POST   /api/ccee/repos                 → Add a user-tracked repo
+ * DELETE /api/ccee/repos/:slug           → Remove a user-tracked repo
  */
 
 import { Router, Request, Response } from 'express';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { homedir } from 'node:os';
 import { randomUUID } from 'node:crypto';
 import { createTaggedLogger } from '../../utils/logger.js';
 import { runTier1, runTier2, runTier3 } from '../../testing/validator.js';
@@ -22,6 +26,12 @@ import type { ProposalTestResult, TierResult } from '../../testing/validator.js'
 import { healProposal } from '../../testing/healer.js';
 import type { HealResult } from '../../testing/healer.js';
 import type { Proposal } from '../../proposals/generator.js';
+import {
+  readUserRepos,
+  writeUserRepos,
+  normaliseRepoUrl,
+  isValidRepoUrl,
+} from '../../obsidian/config-reader.js';
 
 const log = createTaggedLogger('api');
 
@@ -229,6 +239,117 @@ export function createApiRouter(runDir: string): Router {
     log.info('on-demand run triggered via API');
     // TODO: Spawn the pipeline process — implementation in Phase 5 full build
     res.json({ status: 'triggered', message: 'Pipeline run queued' });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Repo tracking endpoints
+  // ---------------------------------------------------------------------------
+
+  // GET /api/ccee/repos
+  router.get('/repos', (_req: Request, res: Response) => {
+    try {
+      const userRepos = readUserRepos();
+
+      // Load defaults for the count/list
+      const defaultReposPath = join(process.cwd(), 'data', 'default-repos.json');
+      let defaultRepos: Array<{ url: string; name: string }> = [];
+      if (existsSync(defaultReposPath)) {
+        try {
+          const raw = JSON.parse(readFileSync(defaultReposPath, 'utf-8')) as {
+            mandatory?: Array<{ url: string; name: string }>;
+          };
+          defaultRepos = raw.mandatory ?? [];
+        } catch { /* ignore */ }
+      }
+
+      res.json({
+        defaults: defaultRepos.map((r) => ({ url: r.url, name: r.name, source: 'default' })),
+        user: userRepos.map((r) => ({ ...r, source: 'user' })),
+        total: defaultRepos.length + userRepos.length,
+      });
+    } catch (err: unknown) {
+      log.error(`GET /repos failed: ${err instanceof Error ? err.message : String(err)}`);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // POST /api/ccee/repos
+  router.post('/repos', (req: Request, res: Response) => {
+    try {
+      const body = req.body as { url?: string; notes?: string };
+      const rawUrl = String(body.url ?? '').trim();
+      if (!rawUrl) {
+        res.status(400).json({ error: 'url is required' });
+        return;
+      }
+
+      const url = normaliseRepoUrl(rawUrl);
+      if (!isValidRepoUrl(url)) {
+        res.status(400).json({
+          error: 'Invalid repo URL. Expected format: github.com/owner/repo',
+        });
+        return;
+      }
+
+      const existing = readUserRepos();
+      if (existing.some((r) => normaliseRepoUrl(r.url) === url)) {
+        res.status(409).json({ error: 'Repo is already tracked', url });
+        return;
+      }
+
+      const entry = {
+        url,
+        addedAt: new Date().toISOString(),
+        notes: String(body.notes ?? '').slice(0, 200),
+      };
+      const updated = [...existing, entry];
+      writeUserRepos(updated);
+      log.info(`repo added: ${url}`);
+      res.status(201).json({ added: entry, userRepos: updated });
+    } catch (err: unknown) {
+      log.error(`POST /repos failed: ${err instanceof Error ? err.message : String(err)}`);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // DELETE /api/ccee/repos/:slug
+  router.delete('/repos/:slug', (req: Request, res: Response) => {
+    try {
+      const slug = decodeURIComponent(String(req.params['slug'] ?? ''));
+      const url = normaliseRepoUrl(slug);
+
+      const existing = readUserRepos();
+      const idx = existing.findIndex((r) => normaliseRepoUrl(r.url) === url);
+      if (idx === -1) {
+        // Could be a default or Obsidian repo — return 403
+        const defaultReposPath = join(process.cwd(), 'data', 'default-repos.json');
+        let isDefault = false;
+        if (existsSync(defaultReposPath)) {
+          try {
+            const raw = JSON.parse(readFileSync(defaultReposPath, 'utf-8')) as {
+              mandatory?: Array<{ url: string }>;
+            };
+            isDefault = (raw.mandatory ?? []).some(
+              (r) => normaliseRepoUrl(r.url) === url
+            );
+          } catch { /* ignore */ }
+        }
+        if (isDefault) {
+          res.status(403).json({ error: 'Cannot remove a default tracked repo' });
+        } else {
+          res.status(404).json({ error: 'Repo not found in user list' });
+        }
+        return;
+      }
+
+      const updated = existing.filter((_, i) => i !== idx);
+      writeUserRepos(updated);
+      log.info(`repo removed: ${url}`);
+      res.json({ removed: url, userRepos: updated });
+    } catch (err: unknown) {
+      log.error(`DELETE /repos failed: ${err instanceof Error ? err.message : String(err)}`);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   });
 
   // POST /api/ccee/runs/:date/proposals/:id/test

@@ -85,6 +85,27 @@
           <span class="text-muted">None</span>
         </div>
       </div>
+
+      <div class="sidebar__section" id="repos-section">
+        <h3 class="sidebar__heading">Track Repos</h3>
+        <div class="repo-add-row">
+          <input
+            type="text"
+            id="repo-url-input"
+            class="repo-url-input"
+            placeholder="github.com/owner/repo"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button class="btn btn--primary btn--sm" id="btn-add-repo">Track</button>
+        </div>
+        <p class="repo-add-error hidden" id="repo-add-error"></p>
+        <div id="user-repos-list" class="repo-list"></div>
+        <details class="repo-defaults-details" id="repo-defaults-details">
+          <summary class="repo-defaults-summary">Default repos</summary>
+          <div id="default-repos-list" class="repo-list repo-list--defaults"></div>
+        </details>
+      </div>
     </aside>
 
     <!-- Main Panel: Proposals -->
