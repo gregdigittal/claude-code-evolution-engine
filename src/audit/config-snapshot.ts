@@ -115,15 +115,20 @@ function snapshotDirectory(label: string, absolutePath: string): ConfigDirectory
   }
 
   const allPaths = listFiles(absolutePath);
-  const files: FileEntry[] = allPaths.map((p) => {
-    const stat = statSync(p);
-    return {
-      path: p,
-      relativePath: relative(absolutePath, p),
-      sizeBytes: stat.size,
-      lastModifiedMs: stat.mtimeMs,
-      sha256: hashFile(p),
-    };
+  const files: FileEntry[] = allPaths.flatMap((p) => {
+    try {
+      const stat = statSync(p);
+      return [{
+        path: p,
+        relativePath: relative(absolutePath, p),
+        sizeBytes: stat.size,
+        lastModifiedMs: stat.mtimeMs,
+        sha256: hashFile(p),
+      }];
+    } catch {
+      // File disappeared between readdir and stat (e.g. tmp session files) — skip
+      return [];
+    }
   });
 
   return {

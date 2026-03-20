@@ -73,13 +73,6 @@
       ]
     },
     {
-      "name": "Anthropic Claude Skills",
-      "url": "github.com/anthropics/claude-skills",
-      "extractPatterns": [
-        "official skill patterns"
-      ]
-    },
-    {
       "name": "Continuous Claude v2",
       "url": "github.com/disler/continuous-claude-code-2",
       "extractPatterns": [

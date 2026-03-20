@@ -69,12 +69,20 @@
         <button class="btn btn--secondary btn--full" id="btn-accept-tested">Accept All Tested</button>
         <button class="btn btn--danger btn--full" id="btn-reject-removals">Reject All Removals</button>
         <button class="btn btn--ghost btn--full" id="btn-reject-high-risk">Reject All High Risk</button>
+        <button class="btn btn--secondary btn--full" id="btn-test-all">Test All Untested</button>
       </div>
 
       <div class="sidebar__section">
         <h3 class="sidebar__heading">Run History</h3>
         <div id="run-list" class="run-list">
           <span class="text-muted">Loading...</span>
+        </div>
+      </div>
+
+      <div class="sidebar__section" id="deferred-section">
+        <h3 class="sidebar__heading">Deferred</h3>
+        <div id="deferred-list" class="run-list">
+          <span class="text-muted">None</span>
         </div>
       </div>
     </aside>
@@ -107,6 +115,21 @@
     </div>
   </footer>
 
+  <!-- Apply Confirmation Modal -->
+  <div id="apply-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal__header" id="modal-header">
+        <span class="modal__icon" id="modal-icon">⚠</span>
+        <h2 class="modal__title" id="modal-title">Confirm Apply</h2>
+      </div>
+      <div class="modal__body" id="modal-body"></div>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" id="modal-cancel">Cancel</button>
+        <button class="btn btn--primary" id="modal-confirm">Apply Anyway</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Proposal Card Template (hidden, cloned by JS) -->
   <template id="proposal-card-template">
     <article class="proposal-card" data-proposal-id="">
@@ -116,6 +139,7 @@
           <span class="badge badge--risk"></span>
           <span class="badge badge--category"></span>
           <span class="badge badge--scope"></span>
+          <!-- test-status badge inserted by JS -->
         </div>
         <div class="proposal-card__controls">
           <button class="btn-icon btn-icon--accept" title="Accept">✓</button>
@@ -124,8 +148,13 @@
       </div>
       <h3 class="proposal-card__title"></h3>
       <p class="proposal-card__impact"></p>
+      <details class="proposal-card__test-details hidden">
+        <summary class="proposal-card__test-summary">Test details</summary>
+        <div class="proposal-card__test-body"></div>
+      </details>
+      <div class="proposal-card__heal-panel hidden"></div>
       <details class="proposal-card__details">
-        <summary>View details</summary>
+        <summary>View changes</summary>
         <div class="proposal-card__diff"></div>
         <div class="proposal-card__testing"></div>
         <div class="proposal-card__rollback"></div>

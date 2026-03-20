@@ -31,8 +31,8 @@ export async function runReviewUiPhase(
   const summary = {
     runDate,
     proposalsTotal: proposalResult.proposals.length,
-    proposalsPassed: testResult.passedProposals.length,
-    proposalsFailed: testResult.failedProposals.length,
+    proposalsPassed: testResult.testResults.tier1Passed,
+    proposalsFailed: testResult.testResults.proposalsTested - testResult.testResults.tier1Passed,
     testPassRate: testResult.testPassRate,
     benchmarks: testResult.benchmarks,
     generatedAt: new Date().toISOString(),
@@ -60,7 +60,7 @@ export async function runReviewUiPhase(
     level: 'info',
     title: `Weekly Run Ready for Review — ${runDate}`,
     message:
-      `${testResult.passedProposals.length} proposals ready for review. ` +
+      `${testResult.passedProposals.length} proposal(s) ready for review. ` +
       `Open: ${reviewUrl}`,
     runDate,
     link: reviewUrl,

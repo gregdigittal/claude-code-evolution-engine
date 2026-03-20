@@ -93,7 +93,8 @@ export async function queryModel(
 
     try {
       // Try importing as a module — works if installed locally or via SDK API
-      sdkModule = (await import('@anthropic-ai/claude-code')) as unknown as SdkModule;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      sdkModule = (await import(/* @vite-ignore */ '@anthropic-ai/claude-code')) as unknown as SdkModule;
     } catch {
       // Not available as a module — will fall through to CLI
     }
@@ -128,17 +129,21 @@ export async function queryModel(
       };
     }
 
+    // Write prompt to temp file (avoids E2BIG OS limit on argv size)
+    const promptFile = join(workspaceDir, 'prompt.txt');
+    writeFileSync(promptFile, prompt, 'utf-8');
+
     const args = [
       '--print',
       '--model', MODEL_MAP[model],
       '--max-turns', String(maxTurns),
-      prompt,
     ];
 
     const output = execFileSync(CLAUDE_CLI, args, {
       encoding: 'utf-8',
       cwd: workspaceDir,
-      timeout: 300_000, // 5 minutes max per phase
+      timeout: 300_000,
+      input: prompt,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
 

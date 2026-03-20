@@ -5,8 +5,8 @@
  * before they touch the real config.
  */
 
-import { cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
 import { homedir } from 'node:os';
 import { createTaggedLogger } from '../utils/logger.js';
 
@@ -72,6 +72,38 @@ export function createSandbox(testEnvDir: string, runDate: string): SandboxPaths
     globalClaudeDir,
     projectDirs,
   };
+}
+
+/**
+ * Apply a proposal's changes to a sandbox directory for Tier 2 testing.
+ * Best-effort: create files that proposals say to create, ignore unknowns.
+ */
+export function applyProposalToSandbox(
+  proposal: import('../proposals/generator.js').Proposal,
+  sandboxClaudeDir: string
+): void {
+  for (const change of proposal.proposedChanges) {
+    const targetPath = change.path.replace(/^~\/.claude/, sandboxClaudeDir);
+
+    if (change.action === 'create') {
+      if (targetPath.endsWith('/')) {
+        mkdirSync(targetPath, { recursive: true });
+      } else {
+        mkdirSync(dirname(targetPath), { recursive: true });
+        writeFileSync(targetPath, change.content ?? '', 'utf-8');
+      }
+    } else if (change.action === 'delete') {
+      try {
+        rmSync(targetPath, { force: true });
+      } catch {
+        // best-effort
+      }
+    } else if (change.action === 'modify') {
+      if (existsSync(targetPath) && change.content !== undefined) {
+        writeFileSync(targetPath, change.content, 'utf-8');
+      }
+    }
+  }
 }
 
 /**

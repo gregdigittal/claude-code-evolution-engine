@@ -27,6 +27,7 @@ export type RepoScanResult = {
   readonly changed: boolean;
   readonly localPath: string;
   readonly filesChanged: readonly string[];
+  readonly unavailable?: boolean;
 };
 
 export type DiscoveredRepo = {
@@ -64,6 +65,19 @@ export async function scanTrackedRepo(
     : null;
 
   await ensureShallowClone(repo.url, localPath);
+
+  if (!existsSync(join(localPath, '.git'))) {
+    log.warn(`shallow clone failed or missing .git for ${repo.url} — marking unavailable`);
+    return {
+      repo,
+      currentSha: null,
+      previousSha,
+      changed: false,
+      localPath,
+      filesChanged: [],
+      unavailable: true,
+    };
+  }
 
   const currentSha = getHeadSha(localPath);
 
