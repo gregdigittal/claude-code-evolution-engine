@@ -297,6 +297,7 @@ function renderProposals() {
 
   // Archive sections always rendered below active proposals
   renderArchiveSections();
+  updateBulkButtons();
 }
 
 // ---------------------------------------------------------------------------
@@ -921,6 +922,8 @@ function toggleDecision(card, proposalId, decision) {
   if (decision === 'rejected') {
     // Animate card out of active list, then move to rejected archive
     state.decisions[proposalId] = 'rejected';
+    const rejProp = state.proposals.find((x) => x.id === proposalId);
+    if (rejProp) rejProp.status = 'rejected';
     card.classList.remove('accepted');
     card.classList.add('rejected', 'proposal-card--exiting');
 
@@ -959,6 +962,26 @@ function updateBottomBar() {
   btnApply.disabled = accepted === 0;
 }
 
+function updateBulkButtons() {
+  const pending = state.proposals.filter((p) => effectiveStatus(p) === 'pending');
+  const hasP0P1 = pending.some((p) => p.priority === 'P0_critical' || p.priority === 'P1_high');
+  const hasLowRisk = pending.some((p) => p.risk !== 'breaking' && p.risk !== 'high');
+  const hasRemovals = pending.some((p) =>
+    p.category === 'legacy_removal' || p.category === 'skill_remove' || p.category === 'hook_remove'
+  );
+  const hasHighRisk = pending.some((p) => p.risk === 'high' || p.risk === 'breaking');
+
+  const btnP0P1 = $('btn-accept-p0p1');
+  const btnTested = $('btn-accept-tested');
+  const btnRemovals = $('btn-reject-removals');
+  const btnHighRisk = $('btn-reject-high-risk');
+
+  if (btnP0P1) btnP0P1.disabled = !hasP0P1;
+  if (btnTested) btnTested.disabled = !hasLowRisk;
+  if (btnRemovals) btnRemovals.disabled = !hasRemovals;
+  if (btnHighRisk) btnHighRisk.disabled = !hasHighRisk;
+}
+
 // ---------------------------------------------------------------------------
 // Empty / error states
 // ---------------------------------------------------------------------------
@@ -985,8 +1008,9 @@ function showError(message) {
 // ---------------------------------------------------------------------------
 function applyBulkDecision(filter, decision) {
   for (const proposal of state.proposals) {
-    if (filter(proposal)) {
+    if (filter(proposal) && effectiveStatus(proposal) === 'pending') {
       state.decisions[proposal.id] = decision;
+      if (decision === 'rejected') proposal.status = 'rejected';
     }
   }
   renderProposals();
@@ -1024,6 +1048,7 @@ $('btn-reject-high-risk').addEventListener('click', () => {
 
   for (const p of targets) {
     state.decisions[p.id] = 'rejected';
+    p.status = 'rejected';
   }
 
   // Optimistically POST to server then sync returned statuses
@@ -1207,15 +1232,13 @@ async function doApply() {
       });
       modalActions.appendChild(msg);
       modalActions.appendChild(doneBtn);
-      // Sync server-returned statuses (applied) into local state
-      if (Array.isArray(postResult.proposals)) {
-        for (const rp of postResult.proposals) {
-          const p = state.proposals.find((x) => x.id === rp.id);
-          if (p) { p.status = rp.status; p.appliedAt = rp.appliedAt; }
-        }
+      // Mark accepted proposals as applied directly (don't rely solely on server response)
+      const appliedAt = new Date().toISOString();
+      for (const id of acceptedIds) {
+        const p = state.proposals.find((x) => x.id === id);
+        if (p) { p.status = 'applied'; p.appliedAt = appliedAt; }
+        delete state.decisions[id];
       }
-      // Clear in-session accepted decisions (now persisted as applied)
-      for (const id of acceptedIds) { delete state.decisions[id]; }
       renderProposals();
       updateBottomBar();
     } else {
